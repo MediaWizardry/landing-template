@@ -1,0 +1,29 @@
+{
+  "product_name": "Product Name",
+  "tagline": "Your product tagline goes here",
+  "description": "A brief description of what your product does and why people should care.",
+  "primary_color": "#3B82F6",
+  "accent_color": "#1E293B",
+  "features": [
+    {
+      "title": "Feature One",
+      "description": "Describe the first key feature of your product."
+    },
+    {
+      "title": "Feature Two",
+      "description": "Describe the second key feature of your product."
+    },
+    {
+      "title": "Feature Three",
+      "description": "Describe the third key feature of your product."
+    }
+  ],
+  "cta": {
+    "type": "link",
+    "text": "Get Started",
+    "action": "#"
+  },
+  "footer": {
+    "copyright": "Product Name 2026"
+  }
+}

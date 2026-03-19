@@ -1,0 +1,19 @@
+services:
+  web:
+    image: nginx:alpine
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+    networks:
+      - tunnel
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - tunnel
+    restart: unless-stopped
+
+networks:
+  tunnel:
