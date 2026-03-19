@@ -15,7 +15,10 @@ jobs:
           TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+          PORTAINER_ENDPOINT_ID: ${{ secrets.PORTAINER_ENDPOINT_ID }}
         run: |
+          ENDPOINT_ID="${PORTAINER_ENDPOINT_ID:-3}"
+
           # Check if stack already exists
           STACK_ID=$(curl -sk "$PORTAINER_URL/api/stacks" \
             -H "X-API-Key: $PORTAINER_API_KEY" \
@@ -23,14 +26,14 @@ jobs:
 
           if [ -n "$STACK_ID" ] && [ "$STACK_ID" != "null" ]; then
             # Update existing stack (pull latest)
-            curl -sk -X PUT "$PORTAINER_URL/api/stacks/$STACK_ID/git/redeploy" \
+            curl -sk -X PUT "$PORTAINER_URL/api/stacks/$STACK_ID/git/redeploy?endpointId=$ENDPOINT_ID" \
               -H "X-API-Key: $PORTAINER_API_KEY" \
               -H "Content-Type: application/json" \
               --data '{"pullImage": true}'
             echo "Stack $REPO_NAME updated (ID: $STACK_ID)"
           else
             # Create new stack from this repo
-            curl -sk -X POST "$PORTAINER_URL/api/stacks/create/standalone/repository" \
+            curl -sk -X POST "$PORTAINER_URL/api/stacks/create/standalone/repository?endpointId=$ENDPOINT_ID" \
               -H "X-API-Key: $PORTAINER_API_KEY" \
               -H "Content-Type: application/json" \
               --data "{
