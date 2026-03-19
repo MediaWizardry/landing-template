@@ -3,6 +3,7 @@ services:
     image: nginx:alpine
     volumes:
       - ./public:/usr/share/nginx/html:ro
+    user: root
     networks:
       - tunnel
 
