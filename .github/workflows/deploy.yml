@@ -13,9 +13,10 @@ jobs:
           PORTAINER_URL: ${{ secrets.PORTAINER_URL }}
           PORTAINER_API_KEY: ${{ secrets.PORTAINER_API_KEY }}
           TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
+          PORTAINER_ENDPOINT_ID: ${{ secrets.PORTAINER_ENDPOINT_ID }}
+          GITHUB_REPO_TOKEN: ${{ secrets.GITHUB_REPO_TOKEN }}
           REPO_NAME: ${{ github.event.repository.name }}
           REPO_URL: ${{ github.server_url }}/${{ github.repository }}
-          PORTAINER_ENDPOINT_ID: ${{ secrets.PORTAINER_ENDPOINT_ID }}
         run: |
           ENDPOINT_ID="${PORTAINER_ENDPOINT_ID:-3}"
 
@@ -29,7 +30,12 @@ jobs:
             curl -sk -X PUT "$PORTAINER_URL/api/stacks/$STACK_ID/git/redeploy?endpointId=$ENDPOINT_ID" \
               -H "X-API-Key: $PORTAINER_API_KEY" \
               -H "Content-Type: application/json" \
-              --data '{"pullImage": true}'
+              --data "{
+                \"pullImage\": true,
+                \"repositoryAuthentication\": true,
+                \"repositoryUsername\": \"debjesse\",
+                \"repositoryPassword\": \"$GITHUB_REPO_TOKEN\"
+              }"
             echo "Stack $REPO_NAME updated (ID: $STACK_ID)"
           else
             # Create new stack from this repo
@@ -39,6 +45,9 @@ jobs:
               --data "{
                 \"name\": \"$REPO_NAME\",
                 \"repositoryURL\": \"$REPO_URL\",
+                \"repositoryAuthentication\": true,
+                \"repositoryUsername\": \"debjesse\",
+                \"repositoryPassword\": \"$GITHUB_REPO_TOKEN\",
                 \"repositoryReferenceName\": \"refs/heads/main\",
                 \"composeFile\": \"docker-compose.yml\",
                 \"env\": [{\"name\": \"TUNNEL_TOKEN\", \"value\": \"$TUNNEL_TOKEN\"}]
