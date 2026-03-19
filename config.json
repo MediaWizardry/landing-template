@@ -1,29 +1,129 @@
 {
-  "product_name": "Product Name",
-  "tagline": "Your product tagline goes here",
-  "description": "A brief description of what your product does and why people should care.",
-  "primary_color": "#3B82F6",
-  "accent_color": "#1E293B",
-  "features": [
-    {
-      "title": "Feature One",
-      "description": "Describe the first key feature of your product."
-    },
-    {
-      "title": "Feature Two",
-      "description": "Describe the second key feature of your product."
-    },
-    {
-      "title": "Feature Three",
-      "description": "Describe the third key feature of your product."
-    }
-  ],
-  "cta": {
-    "type": "link",
-    "text": "Get Started",
-    "action": "#"
+  "product_name": "TeleMind",
+  "meta_description": "AI-powered Telegram intelligence that surfaces what matters from your channels — so you never miss a critical signal again.",
+
+  "brand": {
+    "primary": "#6366F1",
+    "secondary": "#EC4899",
+    "accent": "#F59E0B",
+    "dark": "#0F172A",
+    "light": "#F8FAFC",
+    "font_heading": "Inter",
+    "font_body": "Inter"
   },
+
+  "hero": {
+    "badge": "Now in early access",
+    "headline": "Stop losing {{gradient:signals}} in the noise",
+    "subheadline": "AI-powered intelligence that surfaces what matters from your Telegram channels — so your team never misses a critical message again.",
+    "image": "assets/hero.png",
+    "cta": {
+      "type": "email",
+      "text": "Get early access",
+      "action": "#",
+      "note": "Free during beta. No credit card required."
+    }
+  },
+
+  "problem": {
+    "label": "The Problem",
+    "headline": "Your Telegram channels are {{gradient:working against you}}",
+    "description": "Teams and communities generate thousands of messages daily. The important ones get buried.",
+    "points": [
+      {
+        "icon": "🌊",
+        "title": "Message overload",
+        "description": "Hundreds of messages across dozens of channels every day. No human can keep up."
+      },
+      {
+        "icon": "🔇",
+        "title": "Buried signals",
+        "description": "Critical intel — complaints, opportunities, threats — lost in a river of noise."
+      },
+      {
+        "icon": "🕳️",
+        "title": "Zero searchability",
+        "description": "Telegram's built-in search is keyword-only. Finding context means scrolling for hours."
+      }
+    ]
+  },
+
+  "solution": {
+    "label": "The Solution",
+    "headline": "Meet {{gradient:TeleMind}}",
+    "description": "An AI layer that watches your Telegram channels 24/7, understands context, and delivers the intelligence that matters — before you even know to look for it.",
+    "image": "assets/mockup.png",
+    "bullets": [
+      "Semantic search — find messages by meaning, not just keywords",
+      "AI-generated daily digests delivered to your inbox",
+      "Real-time signal detection for complaints, opportunities, and threats",
+      "Works across unlimited channels and groups"
+    ]
+  },
+
+  "features": {
+    "label": "Capabilities",
+    "headline": "Everything you need to {{gradient:own the conversation}}",
+    "description": "Built for teams who move fast and can't afford to miss what matters.",
+    "items": [
+      {
+        "icon": "🔍",
+        "title": "Semantic Search",
+        "description": "Ask questions in plain English. TeleMind understands context, not just keywords."
+      },
+      {
+        "icon": "📊",
+        "title": "Daily Intelligence Briefs",
+        "description": "Wake up to an AI-curated summary of everything important from the last 24 hours."
+      },
+      {
+        "icon": "📡",
+        "title": "Real-Time Alerts",
+        "description": "Get instant notifications when TeleMind detects complaints, pricing changes, or competitor mentions."
+      },
+      {
+        "icon": "🧠",
+        "title": "Contextual Memory",
+        "description": "TeleMind remembers conversations across time. Ask about trends, not just individual messages."
+      },
+      {
+        "icon": "🔌",
+        "title": "Zero Setup",
+        "description": "Add TeleMind to your channels. It starts learning immediately. No configuration required."
+      },
+      {
+        "icon": "🔒",
+        "title": "Private & Secure",
+        "description": "Your data never leaves your infrastructure. Self-hosted option available for enterprise."
+      }
+    ]
+  },
+
+  "proof": {
+    "stats": [
+      { "value": "10x", "label": "Faster intelligence gathering" },
+      { "value": "24/7", "label": "Continuous monitoring" },
+      { "value": "< 30s", "label": "Average alert latency" },
+      { "value": "99.9%", "label": "Uptime SLA" }
+    ]
+  },
+
+  "final_cta": {
+    "headline": "Ready to {{gradient:stop missing signals}}?",
+    "subheadline": "Join the teams already using TeleMind to turn Telegram noise into actionable intelligence.",
+    "cta": {
+      "type": "email",
+      "text": "Get early access",
+      "action": "#",
+      "note": "Free during beta. Cancel anytime."
+    }
+  },
+
   "footer": {
-    "copyright": "Product Name 2026"
+    "copyright": "TeleMind 2026",
+    "links": [
+      { "text": "Privacy", "url": "/privacy" },
+      { "text": "Terms", "url": "/terms" }
+    ]
   }
 }
