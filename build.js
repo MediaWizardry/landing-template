@@ -396,9 +396,21 @@ function buildSolution() {
 
   const image = s.image
     ? (() => {
-        // Transparent PNGs (e.g. trimmed mockups) look wrong with rounded corners and box shadows
-        const isMockup = String(s.image).includes('mockup');
-        const imgClass = isMockup
+        // Transparent PNGs look wrong with rounded corners and box shadows —
+        // check if the actual file has an alpha channel
+        let hasAlpha = false;
+        const imgFile = path.join(ROOT, 'public', s.image.replace(/^\//, ''));
+        if (fs.existsSync(imgFile)) {
+          const header = Buffer.alloc(26);
+          const fd = fs.openSync(imgFile, 'r');
+          fs.readSync(fd, header, 0, 26, 0);
+          fs.closeSync(fd);
+          // PNG: byte 25 is color type — 4 = grayscale+alpha, 6 = RGBA
+          if (header[0] === 0x89 && header[1] === 0x50) { // PNG magic
+            hasAlpha = header[25] === 4 || header[25] === 6;
+          }
+        }
+        const imgClass = hasAlpha
           ? 'animate-float w-full'
           : 'rounded-2xl shadow-2xl shadow-black/40 animate-float w-full';
         return `<div class="reveal" style="transition-delay: 0.2s;">
