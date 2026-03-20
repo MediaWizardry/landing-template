@@ -1,6 +1,7 @@
 {
   "product_name": "TeleMind",
   "meta_description": "AI-powered Telegram intelligence that surfaces what matters from your channels — so you never miss a critical signal again.",
+  "domain": "telemind.dev",
 
   "brand": {
     "primary": "#6366F1",
@@ -31,17 +32,17 @@
     "description": "Teams and communities generate thousands of messages daily. The important ones get buried.",
     "points": [
       {
-        "icon": "🌊",
+        "icon": "signal",
         "title": "Message overload",
         "description": "Hundreds of messages across dozens of channels every day. No human can keep up."
       },
       {
-        "icon": "🔇",
+        "icon": "eye",
         "title": "Buried signals",
         "description": "Critical intel — complaints, opportunities, threats — lost in a river of noise."
       },
       {
-        "icon": "🕳️",
+        "icon": "search",
         "title": "Zero searchability",
         "description": "Telegram's built-in search is keyword-only. Finding context means scrolling for hours."
       }
@@ -67,33 +68,33 @@
     "description": "Built for teams who move fast and can't afford to miss what matters.",
     "items": [
       {
-        "icon": "🔍",
+        "icon": "search",
         "title": "Semantic Search",
         "description": "Ask questions in plain English. TeleMind understands context, not just keywords."
       },
       {
-        "icon": "📊",
+        "icon": "chart",
         "title": "Daily Intelligence Briefs",
         "description": "Wake up to an AI-curated summary of everything important from the last 24 hours."
       },
       {
-        "icon": "📡",
+        "icon": "bell",
         "title": "Real-Time Alerts",
         "description": "Get instant notifications when TeleMind detects complaints, pricing changes, or competitor mentions."
       },
       {
-        "icon": "🧠",
+        "icon": "brain",
         "title": "Contextual Memory",
         "description": "TeleMind remembers conversations across time. Ask about trends, not just individual messages."
       },
       {
-        "icon": "🔌",
+        "icon": "plug",
         "title": "Zero Setup",
         "description": "Add TeleMind to your channels. It starts learning immediately. No configuration required."
       },
       {
-        "icon": "🔒",
-        "title": "Private & Secure",
+        "icon": "lock",
+        "title": "Private and Secure",
         "description": "Your data never leaves your infrastructure. Self-hosted option available for enterprise."
       }
     ]
@@ -120,10 +121,6 @@
   },
 
   "footer": {
-    "copyright": "TeleMind 2026",
-    "links": [
-      { "text": "Privacy", "url": "/privacy" },
-      { "text": "Terms", "url": "/terms" }
-    ]
+    "copyright": "TeleMind 2026"
   }
 }
