@@ -167,17 +167,9 @@ function buildJsonLd() {
   return `<script type="application/ld+json">\n  ${JSON.stringify(data)}\n  </script>`;
 }
 
-function logoImg(size = 'h-8', showName = false) {
-  const logoPath = path.join(ROOT, 'public', 'assets', 'logo.png');
-  if (fs.existsSync(logoPath)) {
-    // mix-blend-mode: lighten makes the dark PNG background invisible on dark pages
-    const img = `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${size} w-auto" style="mix-blend-mode: lighten;" />`;
-    if (showName) {
-      return `${img}<span class="font-heading font-semibold text-lg">${esc(config.product_name)}</span>`;
-    }
-    return img;
-  }
-  return `<span class="font-heading font-bold text-xl gradient-text">${esc(config.product_name)}</span>`;
+// Logo mark for the page — styled text only (generated PNG is for favicon/app icon only)
+function logoMark(size = 'text-xl') {
+  return `<span class="font-heading font-bold ${size} gradient-text">${esc(config.product_name)}</span>`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -264,7 +256,7 @@ function buildHero() {
   <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background: transparent;">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        ${logoImg('h-10', true)}
+        ${logoMark('text-xl')}
       </a>
       <nav class="hidden md:flex items-center gap-8">
         ${navHtml}
@@ -485,7 +477,7 @@ function buildFooter() {
   <footer class="border-t border-white/5 py-8 px-6 sm:px-8" style="background-color: ${C.dark};">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-3">
-        ${logoImg('h-8', true)}
+        ${logoMark('text-lg')}
         <span>&copy; ${esc(copyright)}</span>
       </div>
       <div class="flex items-center gap-6">${linksHtml}</div>
