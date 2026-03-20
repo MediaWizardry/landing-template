@@ -167,9 +167,14 @@ function buildJsonLd() {
   return `<script type="application/ld+json">\n  ${JSON.stringify(data)}\n  </script>`;
 }
 
-// Logo mark for the page — styled text only (generated PNG is for favicon/app icon only)
-function logoMark(size = 'text-xl') {
-  return `<span class="font-heading font-bold ${size} gradient-text">${esc(config.product_name)}</span>`;
+// Logo: use the horizontal lockup image (icon + text) if available, otherwise gradient text
+function logoMark(height = 'h-8') {
+  const lockupPath = path.join(ROOT, 'public', 'assets', 'logo.png');
+  if (fs.existsSync(lockupPath)) {
+    // mix-blend-mode: lighten removes the dark background on dark pages
+    return `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${height} w-auto" style="mix-blend-mode: lighten;" />`;
+  }
+  return `<span class="font-heading font-bold text-xl gradient-text">${esc(config.product_name)}</span>`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -199,38 +204,58 @@ function buildHero() {
             class="w-full max-w-lg mx-auto lg:max-w-none"
             style="mask-image: linear-gradient(to bottom, black 60%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);" />
         </div>`;
-  } else if (bullets.length > 0) {
-    // No image — build abstract floating card composition from solution bullets
-    const cardPositions = [
-      { top: '8%',  right: '0%',  rot: '-3', scale: '1',    op: '1',   delay: '0',   blur: false },
-      { top: '32%', right: '12%', rot: '4',  scale: '0.92', op: '0.9', delay: '0.8', blur: false },
-      { top: '58%', right: '-4%', rot: '-2', scale: '0.88', op: '0.8', delay: '1.6', blur: false },
-      { top: '2%',  right: '35%', rot: '6',  scale: '0.75', op: '0.35', delay: '0.4', blur: true },
-      { top: '72%', right: '25%', rot: '-5', scale: '0.7',  op: '0.25', delay: '1.2', blur: true },
-    ];
+  } else {
+    // No hero image — build floating composition from feature screenshot images
+    const heroImages = ['hero-1.png', 'hero-2.png', 'hero-3.png']
+      .filter(f => fs.existsSync(path.join(ROOT, 'public', 'assets', f)));
 
-    const cards = bullets.slice(0, 5).map((bullet, i) => {
-      const p = cardPositions[i] || cardPositions[0];
-      const blurStyle = p.blur ? 'filter: blur(2px);' : '';
-      return `
-          <div class="absolute glass rounded-2xl p-5 max-w-[280px] animate-float pointer-events-none"
-               style="top: ${p.top}; right: ${p.right}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; ${blurStyle}">
-            <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="${C.primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              <span class="text-sm text-gray-300 leading-snug">${esc(bullet)}</span>
-            </div>
+    if (heroImages.length > 0) {
+      const cardPositions = [
+        { top: '5%',  right: '-2%', rot: '-3', scale: '1',    op: '1',   delay: '0' },
+        { top: '35%', right: '15%', rot: '4',  scale: '0.9',  op: '0.9', delay: '0.8' },
+        { top: '60%', right: '-5%', rot: '-2', scale: '0.85', op: '0.8', delay: '1.6' },
+      ];
+
+      const cards = heroImages.map((img, i) => {
+        const p = cardPositions[i] || cardPositions[0];
+        return `
+          <div class="absolute rounded-2xl overflow-hidden shadow-2xl shadow-black/50 animate-float pointer-events-none"
+               style="top: ${p.top}; right: ${p.right}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; max-width: 320px;">
+            <img src="/assets/${img}" alt="" class="w-full" loading="lazy" />
           </div>`;
-    });
+      });
 
-    heroVisual = `
-        <div class="relative w-full min-h-[420px] lg:min-h-[480px] mt-12 lg:mt-0">
+      heroVisual = `
+        <div class="relative w-full min-h-[420px] lg:min-h-[500px] mt-12 lg:mt-0">
           ${cards.join('')}
-          <!-- Gradient orbs behind cards -->
           <div class="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-20 blur-3xl pointer-events-none" style="background: ${C.primary};"></div>
           <div class="absolute bottom-1/3 right-[10%] w-32 h-32 rounded-full opacity-15 blur-3xl pointer-events-none" style="background: ${C.secondary};"></div>
         </div>`;
+    } else if (bullets.length > 0) {
+      // Fallback: text-based glass cards if no hero images exist
+      const cardPositions = [
+        { top: '8%',  right: '0%',  rot: '-3', scale: '1',    op: '1',   delay: '0' },
+        { top: '32%', right: '12%', rot: '4',  scale: '0.92', op: '0.9', delay: '0.8' },
+        { top: '58%', right: '-4%', rot: '-2', scale: '0.88', op: '0.8', delay: '1.6' },
+      ];
+      const cards = bullets.slice(0, 3).map((bullet, i) => {
+        const p = cardPositions[i];
+        return `
+          <div class="absolute glass rounded-2xl p-5 max-w-[280px] animate-float pointer-events-none"
+               style="top: ${p.top}; right: ${p.right}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s;">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="${C.primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="text-sm text-gray-300 leading-snug">${esc(bullet)}</span>
+            </div>
+          </div>`;
+      });
+      heroVisual = `
+        <div class="relative w-full min-h-[420px] lg:min-h-[480px] mt-12 lg:mt-0">
+          ${cards.join('')}
+          <div class="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-20 blur-3xl pointer-events-none" style="background: ${C.primary};"></div>
+          <div class="absolute bottom-1/3 right-[10%] w-32 h-32 rounded-full opacity-15 blur-3xl pointer-events-none" style="background: ${C.secondary};"></div>
+        </div>`;
+    }
   }
 
   const hasVisual = hasImage || bullets.length > 0;
@@ -256,7 +281,7 @@ function buildHero() {
   <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background: transparent;">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        ${logoMark('text-xl')}
+        ${logoMark('h-9')}
       </a>
       <nav class="hidden md:flex items-center gap-8">
         ${navHtml}
@@ -477,7 +502,7 @@ function buildFooter() {
   <footer class="border-t border-white/5 py-8 px-6 sm:px-8" style="background-color: ${C.dark};">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-3">
-        ${logoMark('text-lg')}
+        ${logoMark('h-7')}
         <span>&copy; ${esc(copyright)}</span>
       </div>
       <div class="flex items-center gap-6">${linksHtml}</div>
