@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# brand-generate v5.0 — Gemini creates on light bg + Recraft post-processes + alpha-aware trim
+# brand-generate v5.1 — Gemini creates on light bg + Recraft post-processes + alpha-aware trim
 #
 # Key insights:
 #   - Generate logos/features/UI shots on WHITE backgrounds (high contrast for bg removal)
@@ -84,7 +84,7 @@ SOLUTION_BULLETS="$(node -e "
   process.stdout.write(JSON.stringify(c.solution?.bullets||[]));
 ")"
 
-echo "=== Brand Generate v5.0 (Gemini + Recraft + alpha-aware trim) ==="
+echo "=== Brand Generate v5.1 (Gemini + Recraft + alpha-aware trim) ==="
 echo "Product:   $PRODUCT_NAME"
 echo "Headline:  $HERO_HEADLINE"
 echo "Colors:    primary=$PRIMARY_COLOR secondary=$SECONDARY_COLOR accent=$ACCENT_COLOR"
@@ -463,16 +463,14 @@ if [[ "$BULLET_COUNT" -gt 0 ]]; then
 
     RAW="$OUTPUT_DIR/.hero-${idx}-raw.png"
 
-    SHOT_PROMPT="A screenshot of a single UI component for ${PRODUCT_NAME}: ${text}.
+    SHOT_PROMPT="A screenshot of a single dark-themed UI panel for a SaaS product: ${text}.
 
-Dark-themed UI panel with rounded corners and a subtle drop shadow. The panel shows a dashboard element — charts, data, or controls relevant to the feature described. Colors: dark panel background (${BG_COLOR}), accent highlights in ${PRIMARY_COLOR} and ${ACCENT_COLOR}.
+The panel fills most of the image with minimal margins. It shows a dashboard element — charts, data, or controls relevant to the feature described. Dark panel background (${BG_COLOR}), accent highlights in ${PRIMARY_COLOR} and ${ACCENT_COLOR}. Rounded corners, subtle drop shadow. No logo or branding.
 
-The attached logo should appear in the top-left corner of the panel. Use it EXACTLY as shown — do NOT create a different logo.
-
-IMPORTANT: The panel must float on a PURE WHITE background (#FFFFFF). Nothing behind the panel except solid white. No gradient backgrounds, no dark areas outside the panel. The white background must extend to all edges of the image."
+IMPORTANT: The panel must float on a PURE WHITE background (#FFFFFF). Nothing behind the panel except solid white. No gradient backgrounds, no dark areas outside the panel."
 
     echo ""
-    generate_gemini "$SHOT_PROMPT" "$RAW" "$OUTPUT_DIR/logo.png" || { ((ERRORS++)); continue; }
+    generate_gemini "$SHOT_PROMPT" "$RAW" || { ((ERRORS++)); continue; }
     if [[ -f "$RAW" ]]; then
       recraft_remove_bg "$RAW" "$OUTPUT_DIR/hero-${idx}.png" || ((ERRORS++))
       [[ -f "$OUTPUT_DIR/hero-${idx}.png" ]] && trim_alpha "$OUTPUT_DIR/hero-${idx}.png" 1
@@ -483,39 +481,11 @@ else
 fi
 
 # =============================================================================
-# STEP 3: Feature illustrations on WHITE bg → remove bg → trim
+# STEP 3: Feature illustrations — SKIPPED (template uses built-in SVG icons)
 # =============================================================================
 
 echo ""
-echo "--- Step 3: Feature illustrations (Gemini white bg + Recraft remove-bg + trim) ---"
-
-node -e "
-  const features = JSON.parse(process.argv[1]);
-  features.forEach((f, i) => {
-    console.log(JSON.stringify({ index: i + 1, title: f.title, description: f.description }));
-  });
-" "$FEATURES_JSON" | while IFS= read -r feature_json; do
-  idx="$(node -e "process.stdout.write(String(JSON.parse(process.argv[1]).index))" "$feature_json")"
-  title="$(node -e "process.stdout.write(JSON.parse(process.argv[1]).title)" "$feature_json")"
-  desc="$(node -e "process.stdout.write(JSON.parse(process.argv[1]).description)" "$feature_json")"
-
-  RAW="$OUTPUT_DIR/.feature-${idx}-raw.png"
-
-  FEATURE_PROMPT="A clean, minimal icon illustration for: ${title} — ${desc}.
-
-Style: flat design, geometric, single concept. Like a premium app icon.
-Colors: ${PRIMARY_COLOR} as primary, ${SECONDARY_COLOR} as accent.
-Background: PURE WHITE (#FFFFFF). Nothing behind the icon except solid white.
-Square format, icon centered. No text, no labels.
-Simple enough to be recognizable at 48px."
-
-  echo ""
-  generate_gemini "$FEATURE_PROMPT" "$RAW" || { ((ERRORS++)); continue; }
-  if [[ -f "$RAW" ]]; then
-    recraft_remove_bg "$RAW" "$OUTPUT_DIR/feature-${idx}.png" || ((ERRORS++))
-    [[ -f "$OUTPUT_DIR/feature-${idx}.png" ]] && trim_alpha "$OUTPUT_DIR/feature-${idx}.png" 3
-  fi
-done
+echo "--- Step 3: Feature illustrations — skipped (using SVG icons from config) ---"
 
 # =============================================================================
 # STEP 4: Hero background (dark, full-bleed — keep as-is, no trim)
@@ -547,7 +517,21 @@ CRITICAL: The logo shown on the laptop screen must match the attached logo image
 LOGO_REF="$OUTPUT_DIR/logo.png"
 [[ ! -f "$LOGO_REF" ]] && LOGO_REF="$LOGO_RAW"
 
-generate_gemini "$MOCKUP_PROMPT" "$OUTPUT_DIR/mockup.png" "$LOGO_REF" || ((ERRORS++))
+MOCKUP_RAW="$OUTPUT_DIR/.mockup-raw.png"
+generate_gemini "$MOCKUP_PROMPT" "$MOCKUP_RAW" "$LOGO_REF" || ((ERRORS++))
+
+# Remove background to get transparent floating laptop
+if [[ -f "$MOCKUP_RAW" ]]; then
+  echo "  Removing mockup background..."
+  recraft_remove_bg "$MOCKUP_RAW" "$OUTPUT_DIR/mockup.png" || {
+    echo "  Warning: bg removal failed, using original"
+    cp "$MOCKUP_RAW" "$OUTPUT_DIR/mockup.png"
+    ((ERRORS++))
+  }
+  if [[ -f "$OUTPUT_DIR/mockup.png" ]]; then
+    trim_alpha "$OUTPUT_DIR/mockup.png" 10
+  fi
+fi
 
 # =============================================================================
 # STEP 6: OG social card (dark, kept as-is)
@@ -563,7 +547,8 @@ generate_gemini "Social media preview card, 1200x630 pixels. Dark navy backgroun
 # =============================================================================
 
 rm -f "$OUTPUT_DIR"/.logo-raw.png "$OUTPUT_DIR"/.favicon-raw.png \
-      "$OUTPUT_DIR"/.hero-*-raw.png "$OUTPUT_DIR"/.feature-*-raw.png
+      "$OUTPUT_DIR"/.hero-*-raw.png "$OUTPUT_DIR"/.feature-*-raw.png \
+      "$OUTPUT_DIR"/.mockup-raw.png
 
 # =============================================================================
 # Summary
