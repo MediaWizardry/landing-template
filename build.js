@@ -228,22 +228,22 @@ function buildHero() {
 
     if (heroImages.length > 0) {
       const cardPositions = [
-        { top: '5%',  right: '-2%', rot: '-3', scale: '1',    op: '1',   delay: '0' },
-        { top: '35%', right: '15%', rot: '4',  scale: '0.9',  op: '0.9', delay: '0.8' },
-        { top: '60%', right: '-5%', rot: '-2', scale: '0.85', op: '0.8', delay: '1.6' },
+        { top: '0%',  left: '0%',  rot: '-2', scale: '1',    op: '1',   delay: '0' },
+        { top: '28%', left: '20%', rot: '3',  scale: '0.95', op: '0.95', delay: '0.6' },
+        { top: '52%', left: '5%',  rot: '-1', scale: '0.9',  op: '0.9', delay: '1.2' },
       ];
 
       const cards = heroImages.map((img, i) => {
         const p = cardPositions[i] || cardPositions[0];
         return `
           <div class="absolute rounded-2xl overflow-hidden shadow-2xl shadow-black/50 animate-float pointer-events-none"
-               style="top: ${p.top}; right: ${p.right}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; max-width: 320px;">
+               style="top: ${p.top}; left: ${p.left}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; max-width: 440px; width: 85%;">
             <img src="/assets/${img}" alt="" class="w-full" loading="lazy" />
           </div>`;
       });
 
       heroVisual = `
-        <div class="relative w-full min-h-[420px] lg:min-h-[500px] mt-12 lg:mt-0">
+        <div class="relative w-full min-h-[460px] lg:min-h-[560px] mt-12 lg:mt-0">
           ${cards.join('')}
           <div class="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-20 blur-3xl pointer-events-none" style="background: ${C.primary};"></div>
           <div class="absolute bottom-1/3 right-[10%] w-32 h-32 rounded-full opacity-15 blur-3xl pointer-events-none" style="background: ${C.secondary};"></div>
@@ -277,7 +277,7 @@ function buildHero() {
 
   const hasVisual = hasImage || bullets.length > 0;
   const layout = hasVisual
-    ? 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center'
+    ? 'grid lg:grid-cols-2 gap-8 lg:gap-10 items-center'
     : 'max-w-4xl mx-auto text-center';
 
   const ctaAlign = hasVisual ? '' : 'flex justify-center';
