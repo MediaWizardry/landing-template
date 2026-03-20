@@ -167,11 +167,18 @@ function buildJsonLd() {
   return `<script type="application/ld+json">\n  ${JSON.stringify(data)}\n  </script>`;
 }
 
-// Logo: use the horizontal lockup image (icon + text) if available, otherwise gradient text
+// Logo: prefer SVG (transparent), fallback to raster, then gradient text
 function logoMark(height = 'h-8') {
-  const lockupPath = path.join(ROOT, 'public', 'assets', 'logo.png');
-  if (fs.existsSync(lockupPath)) {
-    // mix-blend-mode: lighten removes the dark background on dark pages
+  const svgPath = path.join(ROOT, 'public', 'assets', 'logo.svg');
+  const webpPath = path.join(ROOT, 'public', 'assets', 'logo.webp');
+  const pngPath = path.join(ROOT, 'public', 'assets', 'logo.png');
+  if (fs.existsSync(svgPath)) {
+    return `<img src="/assets/logo.svg" alt="${esc(config.product_name)}" class="${height} w-auto" />`;
+  }
+  if (fs.existsSync(webpPath)) {
+    return `<img src="/assets/logo.webp" alt="${esc(config.product_name)}" class="${height} w-auto" />`;
+  }
+  if (fs.existsSync(pngPath)) {
     return `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${height} w-auto" style="mix-blend-mode: lighten;" />`;
   }
   return `<span class="font-heading font-bold text-xl gradient-text">${esc(config.product_name)}</span>`;
@@ -206,8 +213,14 @@ function buildHero() {
         </div>`;
   } else {
     // No hero image — build floating composition from feature screenshot images
-    const heroImages = ['hero-1.png', 'hero-2.png', 'hero-3.png']
-      .filter(f => fs.existsSync(path.join(ROOT, 'public', 'assets', f)));
+    const heroImages = ['hero-1.svg', 'hero-2.svg', 'hero-3.svg', 'hero-1.png', 'hero-2.png', 'hero-3.png']
+      .filter(f => fs.existsSync(path.join(ROOT, 'public', 'assets', f)))
+      .filter((f, i, arr) => {
+        // Dedupe: prefer .svg over .png for the same base name
+        const base = f.replace(/\.(svg|png)$/, '');
+        return f.endsWith('.svg') || !arr.includes(base + '.svg');
+      })
+      .slice(0, 3);
 
     if (heroImages.length > 0) {
       const cardPositions = [
@@ -383,14 +396,21 @@ function buildFeatures() {
   const items = f.items || [];
   if (items.length === 0) return '';
   const cols = items.length <= 2 ? items.length : items.length === 4 ? 2 : 3;
-  const cards = items.map((feat, i) => `
-        <div class="glass rounded-2xl p-6 card-hover reveal" style="transition-delay: ${(i * 0.08).toFixed(2)}s;">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: ${C.primary}15;">
+  const cards = items.map((feat, i) => {
+      const featureSvg = path.join(ROOT, 'public', 'assets', `feature-${i + 1}.svg`);
+      const hasIllustration = fs.existsSync(featureSvg);
+      const visual = hasIllustration
+        ? `<img src="/assets/feature-${i + 1}.svg" alt="" class="w-16 h-16 mb-4" loading="lazy" />`
+        : `<div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: ${C.primary}15;">
             ${renderIcon(feat.icon || 'default', C.primary)}
-          </div>
+          </div>`;
+      return `
+        <div class="glass rounded-2xl p-6 card-hover reveal" style="transition-delay: ${(i * 0.08).toFixed(2)}s;">
+          ${visual}
           <h3 class="font-heading text-lg font-semibold mb-2">${esc(feat.title)}</h3>
           <p class="text-gray-400 leading-relaxed">${esc(feat.description)}</p>
-        </div>`).join('\n');
+        </div>`;
+    }).join('\n');
 
   return `
   <!-- ═══ FEATURES ═══ -->
@@ -559,7 +579,7 @@ function buildLegalPage(title, content) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${esc(title)} — ${esc(config.product_name)}</title>
   <meta name="robots" content="noindex">
-  <link rel="icon" href="/assets/favicon.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="/assets/favicon.webp" sizes="32x32" type="image/png">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -629,7 +649,8 @@ const manifest = {
   name: config.product_name,
   short_name: config.product_name,
   icons: [
-    { src: '/assets/logo.png', sizes: '512x512', type: 'image/png' }
+    { src: '/assets/logo.svg', sizes: 'any', type: 'image/svg+xml' },
+    { src: '/assets/logo.webp', sizes: '512x512', type: 'image/webp' }
   ],
   theme_color: C.dark,
   background_color: C.dark,
