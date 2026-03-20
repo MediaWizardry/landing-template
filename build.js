@@ -167,15 +167,23 @@ function buildJsonLd() {
   return `<script type="application/ld+json">\n  ${JSON.stringify(data)}\n  </script>`;
 }
 
-// Logo: prefer SVG (vectorized transparent), then PNG (bg-removed transparent), then gradient text
-function logoMark(height = 'h-8') {
+// Logo: prefer variant PNG (dark/light), then SVG, then generic PNG, then gradient text
+function logoMark(height = 'h-8', maxW = 'max-w-[180px]', variant = 'dark') {
+  // Try variant-specific files first, then fall back to generic
+  const variantPng = path.join(ROOT, 'public', 'assets', `logo-${variant}.png`);
   const svgPath = path.join(ROOT, 'public', 'assets', 'logo.svg');
   const pngPath = path.join(ROOT, 'public', 'assets', 'logo.png');
+
+  const cls = `${height} w-auto ${maxW} object-contain`;
+
+  if (fs.existsSync(variantPng)) {
+    return `<img src="/assets/logo-${variant}.png" alt="${esc(config.product_name)}" class="${cls}" />`;
+  }
   if (fs.existsSync(svgPath)) {
-    return `<img src="/assets/logo.svg" alt="${esc(config.product_name)}" class="${height} w-auto" />`;
+    return `<img src="/assets/logo.svg" alt="${esc(config.product_name)}" class="${cls}" />`;
   }
   if (fs.existsSync(pngPath)) {
-    return `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${height} w-auto" />`;
+    return `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${cls}" />`;
   }
   return `<span class="font-heading font-bold text-xl gradient-text">${esc(config.product_name)}</span>`;
 }
@@ -290,7 +298,7 @@ function buildHero() {
   <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background: transparent;">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        ${logoMark('h-9')}
+        ${logoMark('h-9', 'max-w-[180px]', 'dark')}
       </a>
       <nav class="hidden md:flex items-center gap-8">
         ${navHtml}
@@ -519,7 +527,7 @@ function buildFooter() {
   <footer class="border-t border-white/5 py-8 px-6 sm:px-8" style="background-color: ${C.dark};">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-3">
-        ${logoMark('h-7')}
+        ${logoMark('h-7', 'max-w-[140px]', 'dark')}
         <span>&copy; ${esc(copyright)}</span>
       </div>
       <div class="flex items-center gap-6">${linksHtml}</div>
