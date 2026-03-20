@@ -227,40 +227,50 @@ function buildHero() {
       .slice(0, 3);
 
     if (heroImages.length > 0) {
-      // Rotating hero images — single slot, flip animation cycling through each
-      const n = heroImages.length;
-      const perImage = 4; // seconds each image is visible
-      const cycle = n * perImage;
+      // Stacked cards — all visible, cycling which one is in front
+      const cycle = heroImages.length * 4; // 4s per card in front
+      const offsets = [
+        { top: '0%',  left: '0%',  rot: '-2deg' },
+        { top: '8%',  left: '12%', rot: '2deg' },
+        { top: '16%', left: '3%',  rot: '-1deg' },
+      ];
 
-      const images = heroImages.map((img, i) =>
-        `<img src="/assets/${img}" alt="" loading="lazy"
-              class="hero-flip rounded-2xl shadow-2xl shadow-black/50"
-              style="animation-delay: ${i * perImage}s;" />`
-      );
+      const cards = heroImages.map((img, i) => {
+        const o = offsets[i] || offsets[0];
+        return `
+          <div class="absolute rounded-2xl overflow-hidden shadow-2xl shadow-black/50 hero-stack hero-stack-${i}"
+               style="top: ${o.top}; left: ${o.left}; width: 82%; max-width: 420px;">
+            <img src="/assets/${img}" alt="" class="w-full" loading="lazy" />
+          </div>`;
+      });
 
       heroVisual = `
-        <div class="relative w-full lg:mt-0" style="perspective: 1000px;">
+        <div class="relative w-full min-h-[300px] lg:min-h-[400px] mt-8 lg:mt-0">
           <style>
-            .hero-flip {
-              position: absolute; top: 0; left: 0; width: 100%;
-              opacity: 0;
-              transform: rotateY(-90deg);
-              animation: heroFlip ${cycle}s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            .hero-stack { transform-origin: center center; }
+            .hero-stack-0 { animation: heroDepthA ${cycle}s ease-in-out infinite; }
+            .hero-stack-1 { animation: heroDepthB ${cycle}s ease-in-out infinite; }
+            .hero-stack-2 { animation: heroDepthC ${cycle}s ease-in-out infinite; }
+            @keyframes heroDepthA {
+              0%, 28%  { z-index: 3; transform: rotate(-2deg) scale(1);    opacity: 1; }
+              33%, 61% { z-index: 1; transform: rotate(-2deg) scale(0.92); opacity: 0.6; }
+              66%, 94% { z-index: 2; transform: rotate(-2deg) scale(0.96); opacity: 0.8; }
+              100%     { z-index: 3; transform: rotate(-2deg) scale(1);    opacity: 1; }
             }
-            .hero-flip:first-child {
-              position: relative;
-              opacity: 1;
-              transform: rotateY(0deg);
+            @keyframes heroDepthB {
+              0%, 28%  { z-index: 2; transform: rotate(2deg) scale(0.96); opacity: 0.8; }
+              33%, 61% { z-index: 3; transform: rotate(2deg) scale(1);    opacity: 1; }
+              66%, 94% { z-index: 1; transform: rotate(2deg) scale(0.92); opacity: 0.6; }
+              100%     { z-index: 2; transform: rotate(2deg) scale(0.96); opacity: 0.8; }
             }
-            @keyframes heroFlip {
-              0%   { opacity: 0; transform: rotateY(-90deg); }
-              3%   { opacity: 1; transform: rotateY(0deg); }
-              ${Math.round(100 / n - 3)}%  { opacity: 1; transform: rotateY(0deg); }
-              ${Math.round(100 / n)}%  { opacity: 0; transform: rotateY(90deg); }
-              100% { opacity: 0; transform: rotateY(90deg); }
+            @keyframes heroDepthC {
+              0%, 28%  { z-index: 1; transform: rotate(-1deg) scale(0.92); opacity: 0.6; }
+              33%, 61% { z-index: 2; transform: rotate(-1deg) scale(0.96); opacity: 0.8; }
+              66%, 94% { z-index: 3; transform: rotate(-1deg) scale(1);    opacity: 1; }
+              100%     { z-index: 1; transform: rotate(-1deg) scale(0.92); opacity: 0.6; }
             }
           </style>
-          ${images.join('\n          ')}
+          ${cards.join('')}
         </div>`;
     } else if (bullets.length > 0) {
       // Fallback: text-based glass cards if no hero images exist
@@ -291,7 +301,7 @@ function buildHero() {
 
   const hasVisual = hasImage || bullets.length > 0;
   const layout = hasVisual
-    ? 'grid lg:grid-cols-2 gap-8 lg:gap-10 items-start'
+    ? 'grid lg:grid-cols-2 gap-8 lg:gap-10 items-center'
     : 'max-w-4xl mx-auto text-center';
 
   const ctaAlign = hasVisual ? '' : 'flex justify-center';
