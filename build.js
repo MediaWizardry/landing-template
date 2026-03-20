@@ -395,10 +395,17 @@ function buildSolution() {
             </li>`).join('\n');
 
   const image = s.image
-    ? `<div class="reveal" style="transition-delay: 0.2s;">
+    ? (() => {
+        // Transparent PNGs (e.g. trimmed mockups) look wrong with rounded corners and box shadows
+        const isMockup = String(s.image).includes('mockup');
+        const imgClass = isMockup
+          ? 'animate-float w-full'
+          : 'rounded-2xl shadow-2xl shadow-black/40 animate-float w-full';
+        return `<div class="reveal" style="transition-delay: 0.2s;">
           <img src="${esc(s.image)}" alt="${esc(config.product_name)}"
-            class="rounded-2xl shadow-2xl shadow-black/40 animate-float w-full" />
-        </div>`
+            class="${imgClass}" />
+        </div>`;
+      })()
     : '';
 
   return `
