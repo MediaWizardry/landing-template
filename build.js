@@ -227,26 +227,36 @@ function buildHero() {
       .slice(0, 3);
 
     if (heroImages.length > 0) {
-      const cardPositions = [
-        { top: '0%',   left: '0%',  rot: '-2', scale: '1',    op: '1',    zIdx: '3', delay: '0' },
-        { top: '38%',  left: '18%', rot: '2',  scale: '0.92', op: '0.95', zIdx: '2', delay: '0.6' },
-        { top: '70%',  left: '4%',  rot: '-1', scale: '0.88', op: '0.9',  zIdx: '1', delay: '1.2' },
-      ];
+      // Rotating hero images — single slot, flip animation cycling through each
+      const n = heroImages.length;
+      const perImage = 4; // seconds each image is visible
+      const cycle = n * perImage;
 
-      const cards = heroImages.map((img, i) => {
-        const p = cardPositions[i] || cardPositions[0];
-        return `
-          <div class="absolute rounded-2xl overflow-hidden shadow-2xl shadow-black/50 animate-float pointer-events-none"
-               style="top: ${p.top}; left: ${p.left}; z-index: ${p.zIdx}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; max-width: 420px; width: 80%;">
-            <img src="/assets/${img}" alt="" class="w-full" loading="lazy" />
-          </div>`;
-      });
+      const images = heroImages.map((img, i) =>
+        `<img src="/assets/${img}" alt="" loading="lazy"
+              class="hero-flip rounded-2xl shadow-2xl shadow-black/50"
+              style="animation-delay: ${i * perImage}s;" />`
+      );
 
       heroVisual = `
-        <div class="relative w-full min-h-[500px] lg:min-h-[700px] mt-12 lg:mt-0">
-          ${cards.join('')}
-          <div class="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-20 blur-3xl pointer-events-none" style="background: ${C.primary};"></div>
-          <div class="absolute bottom-1/3 right-[10%] w-32 h-32 rounded-full opacity-15 blur-3xl pointer-events-none" style="background: ${C.secondary};"></div>
+        <div class="relative w-full mt-8 lg:mt-0" style="perspective: 1000px;">
+          <style>
+            .hero-flip {
+              position: absolute; top: 0; left: 0; width: 100%;
+              opacity: 0;
+              transform: rotateY(-90deg);
+              animation: heroFlip ${cycle}s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            }
+            .hero-flip:first-child { position: relative; }
+            @keyframes heroFlip {
+              0%   { opacity: 0; transform: rotateY(-90deg); }
+              3%   { opacity: 1; transform: rotateY(0deg); }
+              ${Math.round(100 / n - 3)}%  { opacity: 1; transform: rotateY(0deg); }
+              ${Math.round(100 / n)}%  { opacity: 0; transform: rotateY(90deg); }
+              100% { opacity: 0; transform: rotateY(90deg); }
+            }
+          </style>
+          ${images.join('\n          ')}
         </div>`;
     } else if (bullets.length > 0) {
       // Fallback: text-based glass cards if no hero images exist
