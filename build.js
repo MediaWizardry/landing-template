@@ -239,7 +239,7 @@ function buildHero() {
       );
 
       heroVisual = `
-        <div class="relative w-full mt-8 lg:mt-0" style="perspective: 1000px;">
+        <div class="relative w-full lg:mt-0" style="perspective: 1000px;">
           <style>
             .hero-flip {
               position: absolute; top: 0; left: 0; width: 100%;
@@ -247,7 +247,11 @@ function buildHero() {
               transform: rotateY(-90deg);
               animation: heroFlip ${cycle}s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             }
-            .hero-flip:first-child { position: relative; }
+            .hero-flip:first-child {
+              position: relative;
+              opacity: 1;
+              transform: rotateY(0deg);
+            }
             @keyframes heroFlip {
               0%   { opacity: 0; transform: rotateY(-90deg); }
               3%   { opacity: 1; transform: rotateY(0deg); }
@@ -287,7 +291,7 @@ function buildHero() {
 
   const hasVisual = hasImage || bullets.length > 0;
   const layout = hasVisual
-    ? 'grid lg:grid-cols-2 gap-8 lg:gap-10 items-center'
+    ? 'grid lg:grid-cols-2 gap-8 lg:gap-10 items-start'
     : 'max-w-4xl mx-auto text-center';
 
   const ctaAlign = hasVisual ? '' : 'flex justify-center';
