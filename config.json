@@ -100,6 +100,34 @@
     ]
   },
 
+  "use_cases": {
+    "label": "Use Cases",
+    "headline": "How teams use {{gradient:TeleMind}}",
+    "description": "From crypto intelligence to customer support — TeleMind adapts to how you work.",
+    "items": [
+      {
+        "icon": "trending",
+        "title": "Crypto & DeFi Intelligence",
+        "description": "Monitor alpha channels, whale alerts, and sentiment shifts across Telegram groups before they hit mainstream. Surface emerging narratives and token mentions in real-time."
+      },
+      {
+        "icon": "users",
+        "title": "Community Management",
+        "description": "Track member complaints, feature requests, and sentiment trends across your community channels. Get daily digests with actionable insights instead of scrolling thousands of messages."
+      },
+      {
+        "icon": "shield",
+        "title": "Competitive Intelligence",
+        "description": "Monitor competitor channels, industry groups, and market discussions. Get instant alerts when competitors launch features, change pricing, or face issues."
+      },
+      {
+        "icon": "bell",
+        "title": "Customer Support Monitoring",
+        "description": "Detect frustrated users, recurring issues, and urgent requests across support channels. Route critical messages before they escalate."
+      }
+    ]
+  },
+
   "proof": {
     "stats": [
       { "value": "10x", "label": "Faster intelligence gathering" },

@@ -128,9 +128,9 @@ function buildCta(cta, large = false) {
   const grad = `background: linear-gradient(135deg, ${C.primary}, ${C.secondary});`;
   const btnClass = `${px} ${py} rounded-xl font-semibold ${sz} text-white btn-glow transition-all hover:scale-[1.02] active:scale-[0.98]`;
 
-  let out = '';
+  let out = '<div>';
   if (cta.type === 'email') {
-    out = `
+    out += `
       <form action="${esc(cta.action)}" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-lg ${large ? 'mx-auto lg:mx-0' : ''}">
         <input type="email" name="email" placeholder="Enter your email" required
           class="flex-1 px-4 ${py} rounded-xl bg-white/5 border border-white/10 text-brand-light
@@ -139,12 +139,13 @@ function buildCta(cta, large = false) {
         <button type="submit" class="${btnClass}" style="${grad}">${esc(cta.text)}</button>
       </form>`;
   } else {
-    out = `
+    out += `
       <a href="${esc(cta.action)}" class="inline-block ${btnClass}" style="${grad}">${esc(cta.text)}</a>`;
   }
   if (cta.note) {
     out += `\n      <p class="text-sm text-gray-500 mt-4">${esc(cta.note)}</p>`;
   }
+  out += '</div>';
   return out;
 }
 
@@ -202,12 +203,36 @@ function buildHero() {
 
   const ctaAlign = hasImage ? '' : 'flex justify-center';
 
-  return `
+  // Build nav links from available sections
+  const navLinks = [];
+  if (config.problem) navLinks.push({ text: config.problem.label || 'Problem', id: 'problem' });
+  if (config.solution) navLinks.push({ text: config.solution.label || 'Solution', id: 'solution' });
+  if (config.features) navLinks.push({ text: config.features.label || 'Features', id: 'features' });
+  if (config.use_cases) navLinks.push({ text: config.use_cases.label || 'Use Cases', id: 'use-cases' });
+
+  const navHtml = navLinks.map(l =>
+    `<a href="#${l.id}" class="text-gray-400 hover:text-white transition text-sm">${esc(l.text)}</a>`
+  ).join('\n          ');
+
+  const header = `
+  <!-- ═══ HEADER ═══ -->
+  <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background: transparent;">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        ${logoImg('h-8 w-auto')}
+        <span class="font-heading font-semibold text-lg">${esc(config.product_name)}</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-8">
+        ${navHtml}
+        ${hasCta ? `<a href="#final-cta" class="px-5 py-2 rounded-lg font-medium text-sm text-white transition hover:opacity-90" style="background: linear-gradient(135deg, ${C.primary}, ${C.secondary});">${esc(h.cta?.text || 'Get Started')}</a>` : ''}
+      </nav>
+    </div>
+  </header>`;
+
+  return `${header}
   <!-- ═══ HERO ═══ -->
-  <section class="mesh-bg min-h-screen flex items-center relative overflow-hidden">
+  <section id="hero" class="mesh-bg min-h-screen flex items-center relative overflow-hidden pt-20">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 py-20 md:py-28 w-full">
-      <!-- Logo -->
-      <div class="mb-12">${logoImg('h-10 w-auto')}</div>
       <div class="${layout}">
         <div>
           ${badge}
@@ -243,7 +268,7 @@ function buildProblem() {
 
   return `
   <!-- ═══ PROBLEM ═══ -->
-  <section class="section-alt py-20 sm:py-28 px-6 sm:px-8">
+  <section id="problem" class="section-alt py-20 sm:py-28 px-6 sm:px-8">
     <div class="max-w-6xl mx-auto">
       <div class="text-center mb-16 reveal">
         ${p.label ? `<span class="text-sm font-semibold tracking-widest uppercase gradient-text">${esc(p.label)}</span>` : ''}
@@ -276,7 +301,7 @@ function buildSolution() {
 
   return `
   <!-- ═══ SOLUTION ═══ -->
-  <section class="mesh-bg py-20 sm:py-28 px-6 sm:px-8">
+  <section id="solution" class="mesh-bg py-20 sm:py-28 px-6 sm:px-8">
     <div class="max-w-7xl mx-auto">
       <div class="${s.image ? 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center' : 'max-w-3xl mx-auto text-center'}">
         <div class="reveal">
@@ -308,7 +333,7 @@ function buildFeatures() {
 
   return `
   <!-- ═══ FEATURES ═══ -->
-  <section class="section-alt py-20 sm:py-28 px-6 sm:px-8">
+  <section id="features" class="section-alt py-20 sm:py-28 px-6 sm:px-8">
     <div class="max-w-6xl mx-auto">
       <div class="text-center mb-16 reveal">
         ${f.label ? `<span class="text-sm font-semibold tracking-widest uppercase gradient-text">${esc(f.label)}</span>` : ''}
@@ -316,6 +341,36 @@ function buildFeatures() {
         ${f.description ? `<p class="text-gray-400 text-lg max-w-2xl mx-auto">${esc(f.description)}</p>` : ''}
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-${cols} gap-6">${cards}
+      </div>
+    </div>
+  </section>`;
+}
+
+function buildUseCases() {
+  const uc = config.use_cases;
+  if (!uc || !uc.items || uc.items.length === 0) return '';
+
+  const cards = uc.items.map((item, i) => `
+        <div class="glass rounded-2xl p-8 card-hover reveal flex gap-6 items-start" style="transition-delay: ${(i * 0.1).toFixed(1)}s;">
+          <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style="background: ${C.primary}15;">
+            ${renderIcon(item.icon || 'target', C.primary)}
+          </div>
+          <div>
+            <h3 class="font-heading text-xl font-semibold mb-2">${esc(item.title)}</h3>
+            <p class="text-gray-400 leading-relaxed">${esc(item.description)}</p>
+          </div>
+        </div>`).join('\n');
+
+  return `
+  <!-- ═══ USE CASES ═══ -->
+  <section id="use-cases" class="mesh-bg py-20 sm:py-28 px-6 sm:px-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-16 reveal">
+        ${uc.label ? `<span class="text-sm font-semibold tracking-widest uppercase gradient-text">${esc(uc.label)}</span>` : ''}
+        ${uc.headline ? `<h2 class="font-heading text-3xl sm:text-4xl font-bold mt-3 mb-4">${processGradient(uc.headline)}</h2>` : ''}
+        ${uc.description ? `<p class="text-gray-400 text-lg max-w-2xl mx-auto">${esc(uc.description)}</p>` : ''}
+      </div>
+      <div class="space-y-4">${cards}
       </div>
     </div>
   </section>`;
@@ -346,7 +401,7 @@ function buildFinalCta() {
   if (!fc) return '';
   return `
   <!-- ═══ FINAL CTA ═══ -->
-  <section class="mesh-bg py-20 sm:py-28 px-6 sm:px-8 relative overflow-hidden">
+  <section id="final-cta" class="mesh-bg py-20 sm:py-28 px-6 sm:px-8 relative overflow-hidden">
     <div class="max-w-3xl mx-auto text-center relative z-10 reveal">
       <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
         ${processGradient(fc.headline)}
@@ -386,7 +441,7 @@ function buildFooter() {
   <footer class="border-t border-white/5 py-8 px-6 sm:px-8" style="background-color: ${C.dark};">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-3">
-        ${logoImg('h-6 w-auto opacity-70')}
+        ${logoImg('h-10 w-auto opacity-70')}
         <span>&copy; ${esc(copyright)}</span>
       </div>
       <div class="flex items-center gap-6">${linksHtml}</div>
@@ -420,6 +475,7 @@ html = html.replace('{{HERO_SECTION}}', buildHero());
 html = html.replace('{{PROBLEM_SECTION}}', buildProblem());
 html = html.replace('{{SOLUTION_SECTION}}', buildSolution());
 html = html.replace('{{FEATURES_SECTION}}', buildFeatures());
+html = html.replace('{{USE_CASES_SECTION}}', buildUseCases());
 html = html.replace('{{STATS_SECTION}}', buildStats());
 html = html.replace('{{FINAL_CTA_SECTION}}', buildFinalCta());
 html = html.replace('{{FOOTER_SECTION}}', buildFooter());

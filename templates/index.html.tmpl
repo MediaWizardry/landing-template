@@ -141,19 +141,37 @@
 
 {{FEATURES_SECTION}}
 
+{{USE_CASES_SECTION}}
+
 {{STATS_SECTION}}
 
 {{FINAL_CTA_SECTION}}
 
 {{FOOTER_SECTION}}
 
-  <!-- Scroll reveal observer -->
+  <!-- Scroll reveal + header background -->
   <script>
     const ro = new IntersectionObserver(
       (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
       { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
     );
     document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+    // Header: transparent at top, solid on scroll
+    const header = document.getElementById('site-header');
+    if (header) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          header.style.background = '{{COLOR_DARK}}ee';
+          header.style.backdropFilter = 'blur(12px)';
+          header.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+        } else {
+          header.style.background = 'transparent';
+          header.style.backdropFilter = 'none';
+          header.style.borderBottom = 'none';
+        }
+      }, { passive: true });
+    }
   </script>
 </body>
 </html>
