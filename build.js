@@ -228,22 +228,22 @@ function buildHero() {
 
     if (heroImages.length > 0) {
       const cardPositions = [
-        { top: '0%',  left: '0%',  rot: '-2', scale: '1',    op: '1',   delay: '0' },
-        { top: '28%', left: '20%', rot: '3',  scale: '0.95', op: '0.95', delay: '0.6' },
-        { top: '52%', left: '5%',  rot: '-1', scale: '0.9',  op: '0.9', delay: '1.2' },
+        { top: '0%',   left: '0%',  rot: '-2', scale: '1',    op: '1',    zIdx: '3', delay: '0' },
+        { top: '38%',  left: '18%', rot: '2',  scale: '0.92', op: '0.95', zIdx: '2', delay: '0.6' },
+        { top: '70%',  left: '4%',  rot: '-1', scale: '0.88', op: '0.9',  zIdx: '1', delay: '1.2' },
       ];
 
       const cards = heroImages.map((img, i) => {
         const p = cardPositions[i] || cardPositions[0];
         return `
           <div class="absolute rounded-2xl overflow-hidden shadow-2xl shadow-black/50 animate-float pointer-events-none"
-               style="top: ${p.top}; left: ${p.left}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; max-width: 440px; width: 85%;">
+               style="top: ${p.top}; left: ${p.left}; z-index: ${p.zIdx}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; max-width: 420px; width: 80%;">
             <img src="/assets/${img}" alt="" class="w-full" loading="lazy" />
           </div>`;
       });
 
       heroVisual = `
-        <div class="relative w-full min-h-[460px] lg:min-h-[560px] mt-12 lg:mt-0">
+        <div class="relative w-full min-h-[500px] lg:min-h-[700px] mt-12 lg:mt-0">
           ${cards.join('')}
           <div class="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-20 blur-3xl pointer-events-none" style="background: ${C.primary};"></div>
           <div class="absolute bottom-1/3 right-[10%] w-32 h-32 rounded-full opacity-15 blur-3xl pointer-events-none" style="background: ${C.secondary};"></div>
