@@ -17,7 +17,6 @@
     "badge": "Now in early access",
     "headline": "Stop losing {{gradient:signals}} in the noise",
     "subheadline": "AI-powered intelligence that surfaces what matters from your Telegram channels — so your team never misses a critical message again.",
-    "image": "assets/hero.png",
     "cta": {
       "type": "email",
       "text": "Get early access",

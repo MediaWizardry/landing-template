@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ══════════════════════════════════════════════
+   Custom styles — brand colors injected by build.js
+   into tailwind.config.js, referenced here via theme()
+   ══════════════════════════════════════════════ */
+
+@layer base {
+  /* Smooth scrolling for anchor links */
+  html { scroll-behavior: smooth; }
+}
+
+@layer utilities {
+  /* ── Animations ── */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px theme('colors.brand.primary / 25%'), 0 0 60px theme('colors.brand.primary / 8%'); }
+    50% { box-shadow: 0 0 30px theme('colors.brand.primary / 37%'), 0 0 80px theme('colors.brand.primary / 15%'); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .btn-glow { animation: glow 3s ease-in-out infinite; }
+  .animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+  /* ── Scroll reveal ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Gradient text ── */
+  .gradient-text {
+    background: linear-gradient(135deg, theme('colors.brand.primary'), theme('colors.brand.secondary'));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Mesh gradient background ── */
+  .mesh-bg {
+    background-color: theme('colors.brand.dark');
+    background-image:
+      radial-gradient(ellipse at 15% 50%, theme('colors.brand.primary / 7%') 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 20%, theme('colors.brand.secondary / 6%') 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, theme('colors.brand.accent / 5%') 0%, transparent 50%);
+  }
+
+  /* ── Glass card ── */
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Card hover ── */
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: theme('colors.brand.primary / 19%');
+    box-shadow: 0 8px 30px theme('colors.brand.primary / 7%');
+  }
+
+  /* ── Section alternating background ── */
+  .section-alt {
+    background: rgba(255, 255, 255, 0.015);
+  }
+
+  /* ── Header states ── */
+  .header-solid {
+    background: theme('colors.brand.dark / 93%') !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}

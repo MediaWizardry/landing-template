@@ -34,102 +34,13 @@
   <!-- Structured Data -->
   {{JSON_LD}}
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              primary: '{{COLOR_PRIMARY}}',
-              secondary: '{{COLOR_SECONDARY}}',
-              accent: '{{COLOR_ACCENT}}',
-              dark: '{{COLOR_DARK}}',
-              light: '{{COLOR_LIGHT}}'
-            }
-          },
-          fontFamily: {
-            heading: ['"{{FONT_HEADING}}"', 'system-ui', 'sans-serif'],
-            body: ['"{{FONT_BODY}}"', 'system-ui', 'sans-serif']
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Styles (compiled Tailwind + custom) -->
+  <link rel="stylesheet" href="/styles.css">
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="{{FONT_LINK}}" rel="stylesheet">
-
-  <style>
-    /* ── Animations ── */
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-    @keyframes glow {
-      0%, 100% { box-shadow: 0 0 20px {{COLOR_PRIMARY}}40, 0 0 60px {{COLOR_PRIMARY}}15; }
-      50% { box-shadow: 0 0 30px {{COLOR_PRIMARY}}60, 0 0 80px {{COLOR_PRIMARY}}25; }
-    }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-    .animate-float { animation: float 6s ease-in-out infinite; }
-    .btn-glow { animation: glow 3s ease-in-out infinite; }
-    .animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
-
-    /* ── Scroll reveal ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ── Gradient text ── */
-    .gradient-text {
-      background: linear-gradient(135deg, {{COLOR_PRIMARY}}, {{COLOR_SECONDARY}});
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* ── Mesh gradient background ── */
-    .mesh-bg {
-      background-color: {{COLOR_DARK}};
-      background-image:
-        radial-gradient(ellipse at 15% 50%, {{COLOR_PRIMARY}}12 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 20%, {{COLOR_SECONDARY}}10 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, {{COLOR_ACCENT}}08 0%, transparent 50%);
-    }
-
-    /* ── Glass card ── */
-    .glass {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    /* ── Card hover ── */
-    .card-hover {
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .card-hover:hover {
-      transform: translateY(-4px);
-      border-color: {{COLOR_PRIMARY}}30;
-      box-shadow: 0 8px 30px {{COLOR_PRIMARY}}12;
-    }
-
-    /* ── Section divider ── */
-    .section-alt {
-      background: rgba(255, 255, 255, 0.015);
-    }
-  </style>
 </head>
 <body class="font-body bg-brand-dark text-brand-light antialiased overflow-x-hidden">
 
@@ -149,7 +60,7 @@
 
 {{FOOTER_SECTION}}
 
-  <!-- Scroll reveal + header background -->
+  <!-- Scroll reveal + header -->
   <script>
     const ro = new IntersectionObserver(
       (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
@@ -157,19 +68,10 @@
     );
     document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 
-    // Header: transparent at top, solid on scroll
     const header = document.getElementById('site-header');
     if (header) {
       window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-          header.style.background = '{{COLOR_DARK}}ee';
-          header.style.backdropFilter = 'blur(12px)';
-          header.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
-        } else {
-          header.style.background = 'transparent';
-          header.style.backdropFilter = 'none';
-          header.style.borderBottom = 'none';
-        }
+        header.classList.toggle('header-solid', window.scrollY > 50);
       }, { passive: true });
     }
   </script>

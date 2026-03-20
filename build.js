@@ -3,12 +3,13 @@
  * build.js — Generate landing page from templates/index.html.tmpl + config.json
  *
  * Generates:
- *   public/index.html      — main landing page
- *   public/privacy.html    — privacy policy
- *   public/terms.html      — terms of service
- *   public/site.webmanifest — PWA manifest
- *   public/robots.txt      — search engine directives
- *   public/_headers         — security headers
+ *   public/index.html       — main landing page
+ *   public/privacy.html     — privacy policy
+ *   public/terms.html       — terms of service
+ *   public/site.webmanifest  — PWA manifest
+ *   public/robots.txt       — search engine directives
+ *   public/_headers          — security headers
+ *   tailwind.config.js      — Tailwind config with brand colors (for CLI build)
  */
 
 const fs = require('fs');
@@ -166,10 +167,15 @@ function buildJsonLd() {
   return `<script type="application/ld+json">\n  ${JSON.stringify(data)}\n  </script>`;
 }
 
-function logoImg(cssClass = 'h-8 w-auto') {
+function logoImg(size = 'h-8', showName = false) {
   const logoPath = path.join(ROOT, 'public', 'assets', 'logo.png');
   if (fs.existsSync(logoPath)) {
-    return `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${cssClass}" />`;
+    // mix-blend-mode: lighten makes the dark PNG background invisible on dark pages
+    const img = `<img src="/assets/logo.png" alt="${esc(config.product_name)}" class="${size} w-auto" style="mix-blend-mode: lighten;" />`;
+    if (showName) {
+      return `${img}<span class="font-heading font-semibold text-lg">${esc(config.product_name)}</span>`;
+    }
+    return img;
   }
   return `<span class="font-heading font-bold text-xl gradient-text">${esc(config.product_name)}</span>`;
 }
@@ -190,18 +196,57 @@ function buildHero() {
           </div><br>`
     : '';
 
-  const image = hasImage
-    ? `<div class="animate-float mt-12 lg:mt-0" style="animation-delay: 0.3s;">
-          <img src="${esc(h.image)}" alt="${esc(config.product_name)}"
-            class="rounded-2xl shadow-2xl shadow-black/40 w-full max-w-lg mx-auto lg:max-w-none" />
-        </div>`
-    : '';
+  // Hero visual: CSS composition of floating glass cards from solution bullets, or a single image
+  let heroVisual = '';
+  const bullets = config.solution?.bullets || [];
 
-  const layout = hasImage
+  if (hasImage) {
+    // Explicit image provided — use it with edge fade
+    heroVisual = `<div class="animate-float mt-12 lg:mt-0" style="animation-delay: 0.3s;">
+          <img src="${esc(h.image)}" alt="${esc(config.product_name)}"
+            class="w-full max-w-lg mx-auto lg:max-w-none"
+            style="mask-image: linear-gradient(to bottom, black 60%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);" />
+        </div>`;
+  } else if (bullets.length > 0) {
+    // No image — build abstract floating card composition from solution bullets
+    const cardPositions = [
+      { top: '8%',  right: '0%',  rot: '-3', scale: '1',    op: '1',   delay: '0',   blur: false },
+      { top: '32%', right: '12%', rot: '4',  scale: '0.92', op: '0.9', delay: '0.8', blur: false },
+      { top: '58%', right: '-4%', rot: '-2', scale: '0.88', op: '0.8', delay: '1.6', blur: false },
+      { top: '2%',  right: '35%', rot: '6',  scale: '0.75', op: '0.35', delay: '0.4', blur: true },
+      { top: '72%', right: '25%', rot: '-5', scale: '0.7',  op: '0.25', delay: '1.2', blur: true },
+    ];
+
+    const cards = bullets.slice(0, 5).map((bullet, i) => {
+      const p = cardPositions[i] || cardPositions[0];
+      const blurStyle = p.blur ? 'filter: blur(2px);' : '';
+      return `
+          <div class="absolute glass rounded-2xl p-5 max-w-[280px] animate-float pointer-events-none"
+               style="top: ${p.top}; right: ${p.right}; transform: rotate(${p.rot}deg) scale(${p.scale}); opacity: ${p.op}; animation-delay: ${p.delay}s; ${blurStyle}">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="${C.primary}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span class="text-sm text-gray-300 leading-snug">${esc(bullet)}</span>
+            </div>
+          </div>`;
+    });
+
+    heroVisual = `
+        <div class="relative w-full min-h-[420px] lg:min-h-[480px] mt-12 lg:mt-0">
+          ${cards.join('')}
+          <!-- Gradient orbs behind cards -->
+          <div class="absolute top-1/4 right-1/4 w-48 h-48 rounded-full opacity-20 blur-3xl pointer-events-none" style="background: ${C.primary};"></div>
+          <div class="absolute bottom-1/3 right-[10%] w-32 h-32 rounded-full opacity-15 blur-3xl pointer-events-none" style="background: ${C.secondary};"></div>
+        </div>`;
+  }
+
+  const hasVisual = hasImage || bullets.length > 0;
+  const layout = hasVisual
     ? 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center'
     : 'max-w-4xl mx-auto text-center';
 
-  const ctaAlign = hasImage ? '' : 'flex justify-center';
+  const ctaAlign = hasVisual ? '' : 'flex justify-center';
 
   // Build nav links from available sections
   const navLinks = [];
@@ -219,8 +264,7 @@ function buildHero() {
   <header id="site-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background: transparent;">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 py-4 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        ${logoImg('h-8 w-auto')}
-        <span class="font-heading font-semibold text-lg">${esc(config.product_name)}</span>
+        ${logoImg('h-10', true)}
       </a>
       <nav class="hidden md:flex items-center gap-8">
         ${navHtml}
@@ -244,7 +288,7 @@ function buildHero() {
           </p>
           ${hasCta ? `<div class="${ctaAlign}">${buildCta(h.cta, true)}</div>` : ''}
         </div>
-        ${image}
+        ${heroVisual}
       </div>
     </div>
     <div class="absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
@@ -441,7 +485,7 @@ function buildFooter() {
   <footer class="border-t border-white/5 py-8 px-6 sm:px-8" style="background-color: ${C.dark};">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-3">
-        ${logoImg('h-10 w-auto opacity-70')}
+        ${logoImg('h-8', true)}
         <span>&copy; ${esc(copyright)}</span>
       </div>
       <div class="flex items-center gap-6">${linksHtml}</div>
@@ -601,4 +645,33 @@ const headers = `/*
 fs.writeFileSync(path.join(pubDir, '_headers'), headers.trim() + '\n');
 console.log('Built: public/_headers');
 
-console.log('Done.');
+// ═══════════════════════════════════════════════════════════
+// Generate tailwind.config.js (for CLI build)
+// ═══════════════════════════════════════════════════════════
+
+const tailwindConfig = `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./public/**/*.html'],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          primary: '${C.primary}',
+          secondary: '${C.secondary}',
+          accent: '${C.accent}',
+          dark: '${C.dark}',
+          light: '${C.light}'
+        }
+      },
+      fontFamily: {
+        heading: ['"${fontHeading}"', 'system-ui', 'sans-serif'],
+        body: ['"${fontBody}"', 'system-ui', 'sans-serif']
+      }
+    }
+  }
+}
+`;
+fs.writeFileSync(path.join(ROOT, 'tailwind.config.js'), tailwindConfig);
+console.log('Built: tailwind.config.js');
+
+console.log('Done. Run: npx tailwindcss -i src/input.css -o public/styles.css --minify');
